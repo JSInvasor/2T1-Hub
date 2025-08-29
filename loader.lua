@@ -1,5 +1,5 @@
 --[[
-2t1 Hub Loader.
+2t1 Hub Loader - Fixed Version
 ]]
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -16,7 +16,7 @@ local GameDatabase = {
     },
     [14915220621] = {
         name = "Rivals",
-        script = "rivals.lua", 
+        script = "rivals.lua",
     },
     [8395031745] = {
         name = "HyperShot",
@@ -72,10 +72,10 @@ function LoaderUI:Create()
     local LogoText = Instance.new("TextLabel")
     LogoText.Size = UDim2.new(1, 0, 1, 0)
     LogoText.BackgroundTransparency = 1
-    LogoText.Text = "2t1 Hub"
+    LogoText.Text = "2T1 HUB"
     LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    LogoText.TextSize = 32
-    LogoText.Font = Enum.Font.GothamBold
+    LogoText.TextSize = 36
+    LogoText.Font = Enum.Font.FredokaOne -- Daha güzel font
     LogoText.Parent = LogoContainer
     
     local LogoGradient = Instance.new("UIGradient")
@@ -96,6 +96,17 @@ function LoaderUI:Create()
     local StatusCorner = Instance.new("UICorner")
     StatusCorner.CornerRadius = UDim.new(0, 8)
     StatusCorner.Parent = StatusContainer
+    
+    -- Game Icon (SOL TARAF) - DÜZELTME
+    local GameIcon = Instance.new("TextLabel")
+    GameIcon.Size = UDim2.new(0, 60, 0, 60)
+    GameIcon.Position = UDim2.new(0, 10, 0, 10)
+    GameIcon.BackgroundTransparency = 1
+    GameIcon.Text = ""
+    GameIcon.TextColor3 = Color3.fromRGB(255, 255, 255)
+    GameIcon.TextSize = 40
+    GameIcon.Font = Enum.Font.SourceSansBold
+    GameIcon.Parent = StatusContainer
 
     local DetectionText = Instance.new("TextLabel")
     DetectionText.Size = UDim2.new(1, -80, 0, 30)
@@ -104,7 +115,7 @@ function LoaderUI:Create()
     DetectionText.Text = "Detecting Game..."
     DetectionText.TextColor3 = Color3.fromRGB(200, 200, 200)
     DetectionText.TextSize = 18
-    DetectionText.Font = Enum.Font.GothamSemibold
+    DetectionText.Font = Enum.Font.Michroma -- Modern font
     DetectionText.TextXAlignment = Enum.TextXAlignment.Left
     DetectionText.Parent = StatusContainer
     
@@ -115,7 +126,7 @@ function LoaderUI:Create()
     GameNameText.Text = ""
     GameNameText.TextColor3 = Color3.fromRGB(138, 43, 226)
     GameNameText.TextSize = 14
-    GameNameText.Font = Enum.Font.Gotham
+    GameNameText.Font = Enum.Font.Ubuntu -- Temiz font
     GameNameText.TextXAlignment = Enum.TextXAlignment.Left
     GameNameText.Parent = StatusContainer
     
@@ -154,19 +165,20 @@ function LoaderUI:Create()
     StatusText.Text = "Initializing..."
     StatusText.TextColor3 = Color3.fromRGB(150, 150, 150)
     StatusText.TextSize = 12
-    StatusText.Font = Enum.Font.Gotham
+    StatusText.Font = Enum.Font.RobotoMono -- Kod font
     StatusText.Parent = MainFrame
     
     local VersionText = Instance.new("TextLabel")
     VersionText.Size = UDim2.new(1, -40, 0, 20)
     VersionText.Position = UDim2.new(0, 20, 1, -25)
     VersionText.BackgroundTransparency = 1
-    VersionText.Text = "2t1 Game Detecter"
+    VersionText.Text = "v2.0 | Game Detector"
     VersionText.TextColor3 = Color3.fromRGB(100, 100, 100)
     VersionText.TextSize = 10
-    VersionText.Font = Enum.Font.Gotham
+    VersionText.Font = Enum.Font.Code -- Teknik font
     VersionText.Parent = MainFrame
     
+    -- Başlangıç animasyonu
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     
@@ -180,6 +192,7 @@ function LoaderUI:Create()
         MainFrame = MainFrame,
         DetectionText = DetectionText,
         GameNameText = GameNameText,
+        GameIcon = GameIcon, -- Bu eksikti!
         LoadingBar = LoadingBar,
         StatusText = StatusText,
     }
@@ -203,11 +216,11 @@ local function LoadGame()
     wait(0.3)
     
     if GameInfo then
-        UpdateLoading(0.4, "Game detected")
+        UpdateLoading(0.4, "Game detected!")
         UI.DetectionText.Text = "Game Detected"
         UI.GameNameText.Text = GameInfo.name
-        UI.GameIcon.Text = GameInfo.icon
         
+        -- Pulse animasyonu
         local pulseSize = UI.GameIcon.Size
         TweenService:Create(UI.GameIcon, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 70, 0, 70)
@@ -217,15 +230,16 @@ local function LoadGame()
             Size = pulseSize
         }):Play()
         
-        UpdateLoading(0.6, "Loading Script")
+        UpdateLoading(0.6, "Loading script...")
         wait(0.5)
         
-        UpdateLoading(0.8, "Starting UI")
+        UpdateLoading(0.8, "Starting UI...")
         wait(0.3)
         
         UpdateLoading(1, "Launching " .. GameInfo.name .. "...")
         wait(0.5)
         
+        -- Kapanış animasyonu
         TweenService:Create(UI.MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 400, 0, 0),
             Position = UDim2.new(0.5, -200, 0.5, 0)
@@ -234,6 +248,7 @@ local function LoadGame()
         wait(0.3)
         UI.ScreenGui:Destroy()
         
+        -- Script'i yükle
         if GameInfo.script == "bladeball.lua" then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/bladeball.lua"))()
         elseif GameInfo.script == "rivals.lua" then
@@ -243,7 +258,7 @@ local function LoadGame()
         end
         
     else
-        UpdateLoading(0.5, "Which Game is This Bro")
+        UpdateLoading(0.5, "Unsupported game!")
         UI.DetectionText.Text = "Game Not Supported"
         UI.GameNameText.Text = "Place ID: " .. tostring(PlaceId)
         
@@ -251,7 +266,7 @@ local function LoadGame()
         UpdateLoading(1, "Loading universal features...")
         wait(1)
         
-        -- Close and load universal script
+        -- Kapanış ve universal script
         TweenService:Create(UI.MainFrame, TweenInfo.new(0.3), {
             Size = UDim2.new(0, 0, 0, 0),
             Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -259,6 +274,9 @@ local function LoadGame()
         
         wait(0.3)
         UI.ScreenGui:Destroy()
+        
+        -- Universal script yüklenebilir
+        print("Universal features loaded")
     end
 end
 
