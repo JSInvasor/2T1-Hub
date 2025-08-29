@@ -1,5 +1,5 @@
 --[[
-2t1 Hub Loader - Fixed Version
+2t1 Hub Loader
 ]]
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -8,7 +8,6 @@ local CoreGui = game:GetService("CoreGui")
 
 local LocalPlayer = Players.LocalPlayer
 
--- Game Database
 local GameDatabase = {
     [13772394625] = {
         name = "Blade Ball",
@@ -24,11 +23,9 @@ local GameDatabase = {
     }
 }
 
--- Loader UI
 local LoaderUI = {}
 
 function LoaderUI:Create()
-    -- Main ScreenGui
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "2T1Loader"
     ScreenGui.ResetOnSpawn = false
@@ -75,7 +72,7 @@ function LoaderUI:Create()
     LogoText.Text = "2T1 HUB"
     LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
     LogoText.TextSize = 36
-    LogoText.Font = Enum.Font.FredokaOne -- Daha güzel font
+    LogoText.Font = Enum.Font.FredokaOne
     LogoText.Parent = LogoContainer
     
     local LogoGradient = Instance.new("UIGradient")
@@ -97,7 +94,6 @@ function LoaderUI:Create()
     StatusCorner.CornerRadius = UDim.new(0, 8)
     StatusCorner.Parent = StatusContainer
     
-    -- Game Icon (SOL TARAF) - DÜZELTME
     local GameIcon = Instance.new("TextLabel")
     GameIcon.Size = UDim2.new(0, 60, 0, 60)
     GameIcon.Position = UDim2.new(0, 10, 0, 10)
@@ -112,10 +108,10 @@ function LoaderUI:Create()
     DetectionText.Size = UDim2.new(1, -80, 0, 30)
     DetectionText.Position = UDim2.new(0, 80, 0, 10)
     DetectionText.BackgroundTransparency = 1
-    DetectionText.Text = "Detecting Game..."
+    DetectionText.Text = "Detecting Game"
     DetectionText.TextColor3 = Color3.fromRGB(200, 200, 200)
     DetectionText.TextSize = 18
-    DetectionText.Font = Enum.Font.Michroma -- Modern font
+    DetectionText.Font = Enum.Font.Michroma
     DetectionText.TextXAlignment = Enum.TextXAlignment.Left
     DetectionText.Parent = StatusContainer
     
@@ -126,7 +122,7 @@ function LoaderUI:Create()
     GameNameText.Text = ""
     GameNameText.TextColor3 = Color3.fromRGB(138, 43, 226)
     GameNameText.TextSize = 14
-    GameNameText.Font = Enum.Font.Ubuntu -- Temiz font
+    GameNameText.Font = Enum.Font.Ubuntu
     GameNameText.TextXAlignment = Enum.TextXAlignment.Left
     GameNameText.Parent = StatusContainer
     
@@ -165,20 +161,19 @@ function LoaderUI:Create()
     StatusText.Text = "Initializing..."
     StatusText.TextColor3 = Color3.fromRGB(150, 150, 150)
     StatusText.TextSize = 12
-    StatusText.Font = Enum.Font.RobotoMono -- Kod font
+    StatusText.Font = Enum.Font.RobotoMono
     StatusText.Parent = MainFrame
     
     local VersionText = Instance.new("TextLabel")
     VersionText.Size = UDim2.new(1, -40, 0, 20)
     VersionText.Position = UDim2.new(0, 20, 1, -25)
     VersionText.BackgroundTransparency = 1
-    VersionText.Text = "v2.0 | Game Detector"
+    VersionText.Text = "Game Detecting"
     VersionText.TextColor3 = Color3.fromRGB(100, 100, 100)
     VersionText.TextSize = 10
-    VersionText.Font = Enum.Font.Code -- Teknik font
+    VersionText.Font = Enum.Font.Code
     VersionText.Parent = MainFrame
     
-    -- Başlangıç animasyonu
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     
@@ -192,13 +187,12 @@ function LoaderUI:Create()
         MainFrame = MainFrame,
         DetectionText = DetectionText,
         GameNameText = GameNameText,
-        GameIcon = GameIcon, -- Bu eksikti!
+        GameIcon = GameIcon,
         LoadingBar = LoadingBar,
         StatusText = StatusText,
     }
 end
 
--- Main Loader Function
 local function LoadGame()
     local UI = LoaderUI:Create()
     local PlaceId = game.PlaceId
@@ -212,7 +206,7 @@ local function LoadGame()
     end
     
     wait(0.5)
-    UpdateLoading(0.2, "Checking game database...")
+    UpdateLoading(0.2, "Checking Game Database")
     wait(0.3)
     
     if GameInfo then
@@ -220,7 +214,6 @@ local function LoadGame()
         UI.DetectionText.Text = "Game Detected"
         UI.GameNameText.Text = GameInfo.name
         
-        -- Pulse animasyonu
         local pulseSize = UI.GameIcon.Size
         TweenService:Create(UI.GameIcon, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 70, 0, 70)
@@ -230,16 +223,15 @@ local function LoadGame()
             Size = pulseSize
         }):Play()
         
-        UpdateLoading(0.6, "Loading script...")
+        UpdateLoading(0.6, "Loading script")
         wait(0.5)
         
-        UpdateLoading(0.8, "Starting UI...")
+        UpdateLoading(0.8, "Starting UI")
         wait(0.3)
         
         UpdateLoading(1, "Launching " .. GameInfo.name .. "...")
         wait(0.5)
         
-        -- Kapanış animasyonu
         TweenService:Create(UI.MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 400, 0, 0),
             Position = UDim2.new(0.5, -200, 0.5, 0)
@@ -248,7 +240,6 @@ local function LoadGame()
         wait(0.3)
         UI.ScreenGui:Destroy()
         
-        -- Script'i yükle
         if GameInfo.script == "bladeball.lua" then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/bladeball.lua"))()
         elseif GameInfo.script == "rivals.lua" then
@@ -258,7 +249,7 @@ local function LoadGame()
         end
         
     else
-        UpdateLoading(0.5, "Unsupported game!")
+        UpdateLoading(0.5, "Unsupported game")
         UI.DetectionText.Text = "Game Not Supported"
         UI.GameNameText.Text = "Place ID: " .. tostring(PlaceId)
         
@@ -266,7 +257,6 @@ local function LoadGame()
         UpdateLoading(1, "Loading universal features...")
         wait(1)
         
-        -- Kapanış ve universal script
         TweenService:Create(UI.MainFrame, TweenInfo.new(0.3), {
             Size = UDim2.new(0, 0, 0, 0),
             Position = UDim2.new(0.5, 0, 0.5, 0)
@@ -275,10 +265,8 @@ local function LoadGame()
         wait(0.3)
         UI.ScreenGui:Destroy()
         
-        -- Universal script yüklenebilir
         print("Universal features loaded")
     end
 end
 
--- Start Loader
 LoadGame()
