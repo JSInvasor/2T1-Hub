@@ -1,6 +1,7 @@
 -- omg
-local TweenService = game:GetService("TweenService")
+local TweenService = game:GetService("TweenService") 
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
 local player = Players.LocalPlayer
 
 local screenGui = Instance.new("ScreenGui")
@@ -215,3 +216,47 @@ end
 
 charImage.MouseButton1Click:Connect(toggleGui)
 charImage2.MouseButton1Click:Connect(toggleGui)
+
+local dragging = false
+local dragStart, startPos
+
+local function updateDrag(input)
+	if dragging and not isOpen then
+		local delta = input.Position - dragStart
+		local goal = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+
+		TweenService:Create(
+			smallFrame,
+			TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{Position = goal}
+		):Play()
+	end
+end
+
+smallFrame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = smallFrame.Position
+	end
+end)
+
+smallFrame.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		updateDrag(input)
+	end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 
+	or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = false
+	end
+end)
