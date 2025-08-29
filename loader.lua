@@ -1,6 +1,6 @@
--- 2T1 Hub Universal Loader
--- Automatic Game Detection & Script Loading
-
+-[[
+2t1 Hub Loader.
+]]
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
@@ -13,17 +13,14 @@ local GameDatabase = {
     [13772394625] = {
         name = "Blade Ball",
         script = "bladeball.lua",
-        icon = "⚔️"
     },
     [14915220621] = {
         name = "Rivals",
         script = "rivals.lua", 
-        icon = "🔫"
     },
     [8395031745] = {
         name = "HyperShot",
         script = "hypershot.lua",
-        icon = "🎯"
     }
 }
 
@@ -37,7 +34,6 @@ function LoaderUI:Create()
     ScreenGui.ResetOnSpawn = false
     ScreenGui.Parent = CoreGui or LocalPlayer.PlayerGui
     
-    -- Main Frame
     local MainFrame = Instance.new("Frame")
     MainFrame.Size = UDim2.new(0, 400, 0, 250)
     MainFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
@@ -45,12 +41,10 @@ function LoaderUI:Create()
     MainFrame.BorderSizePixel = 0
     MainFrame.Parent = ScreenGui
     
-    -- Rounded Corners
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 12)
     UICorner.Parent = MainFrame
     
-    -- Gradient Background
     local Gradient = Instance.new("UIGradient")
     Gradient.Rotation = 45
     Gradient.Color = ColorSequence.new({
@@ -59,7 +53,6 @@ function LoaderUI:Create()
     })
     Gradient.Parent = MainFrame
     
-    -- Glow Effect
     local Glow = Instance.new("ImageLabel")
     Glow.Size = UDim2.new(1, 30, 1, 30)
     Glow.Position = UDim2.new(0, -15, 0, -15)
@@ -71,23 +64,20 @@ function LoaderUI:Create()
     Glow.SliceCenter = Rect.new(24, 24, 276, 276)
     Glow.Parent = MainFrame
     
-    -- Logo Container
     local LogoContainer = Instance.new("Frame")
     LogoContainer.Size = UDim2.new(1, 0, 0, 60)
     LogoContainer.BackgroundTransparency = 1
     LogoContainer.Parent = MainFrame
     
-    -- Logo Text
     local LogoText = Instance.new("TextLabel")
     LogoText.Size = UDim2.new(1, 0, 1, 0)
     LogoText.BackgroundTransparency = 1
-    LogoText.Text = "2T1 HUB"
+    LogoText.Text = "2t1 Hub"
     LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
     LogoText.TextSize = 32
     LogoText.Font = Enum.Font.GothamBold
     LogoText.Parent = LogoContainer
     
-    -- Logo Gradient
     local LogoGradient = Instance.new("UIGradient")
     LogoGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(138, 43, 226)),
@@ -96,7 +86,6 @@ function LoaderUI:Create()
     })
     LogoGradient.Parent = LogoText
     
-    -- Status Container
     local StatusContainer = Instance.new("Frame")
     StatusContainer.Size = UDim2.new(1, -40, 0, 80)
     StatusContainer.Position = UDim2.new(0, 20, 0, 70)
@@ -107,17 +96,7 @@ function LoaderUI:Create()
     local StatusCorner = Instance.new("UICorner")
     StatusCorner.CornerRadius = UDim.new(0, 8)
     StatusCorner.Parent = StatusContainer
-    
-    -- Game Icon
-    local GameIcon = Instance.new("TextLabel")
-    GameIcon.Size = UDim2.new(0, 60, 0, 60)
-    GameIcon.Position = UDim2.new(0, 10, 0.5, -30)
-    GameIcon.BackgroundTransparency = 1
-    GameIcon.Text = "🎮"
-    GameIcon.TextSize = 40
-    GameIcon.Parent = StatusContainer
-    
-    -- Detection Text
+
     local DetectionText = Instance.new("TextLabel")
     DetectionText.Size = UDim2.new(1, -80, 0, 30)
     DetectionText.Position = UDim2.new(0, 80, 0, 10)
@@ -129,7 +108,6 @@ function LoaderUI:Create()
     DetectionText.TextXAlignment = Enum.TextXAlignment.Left
     DetectionText.Parent = StatusContainer
     
-    -- Game Name Text
     local GameNameText = Instance.new("TextLabel")
     GameNameText.Size = UDim2.new(1, -80, 0, 20)
     GameNameText.Position = UDim2.new(0, 80, 0, 40)
@@ -141,7 +119,6 @@ function LoaderUI:Create()
     GameNameText.TextXAlignment = Enum.TextXAlignment.Left
     GameNameText.Parent = StatusContainer
     
-    -- Loading Bar Container
     local LoadingContainer = Instance.new("Frame")
     LoadingContainer.Size = UDim2.new(1, -40, 0, 6)
     LoadingContainer.Position = UDim2.new(0, 20, 0, 170)
@@ -153,7 +130,6 @@ function LoaderUI:Create()
     LoadingCorner.CornerRadius = UDim.new(1, 0)
     LoadingCorner.Parent = LoadingContainer
     
-    -- Loading Bar
     local LoadingBar = Instance.new("Frame")
     LoadingBar.Size = UDim2.new(0, 0, 1, 0)
     LoadingBar.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
@@ -164,7 +140,6 @@ function LoaderUI:Create()
     LoadingBarCorner.CornerRadius = UDim.new(1, 0)
     LoadingBarCorner.Parent = LoadingBar
     
-    -- Loading Gradient
     local LoadingGradient = Instance.new("UIGradient")
     LoadingGradient.Color = ColorSequence.new({
         ColorSequenceKeypoint.new(0, Color3.fromRGB(138, 43, 226)),
@@ -172,7 +147,6 @@ function LoaderUI:Create()
     })
     LoadingGradient.Parent = LoadingBar
     
-    -- Status Text
     local StatusText = Instance.new("TextLabel")
     StatusText.Size = UDim2.new(1, -40, 0, 20)
     StatusText.Position = UDim2.new(0, 20, 0, 190)
@@ -183,18 +157,16 @@ function LoaderUI:Create()
     StatusText.Font = Enum.Font.Gotham
     StatusText.Parent = MainFrame
     
-    -- Version Text
     local VersionText = Instance.new("TextLabel")
     VersionText.Size = UDim2.new(1, -40, 0, 20)
     VersionText.Position = UDim2.new(0, 20, 1, -25)
     VersionText.BackgroundTransparency = 1
-    VersionText.Text = "v3.0 | Universal Loader"
+    VersionText.Text = "2t1 Game Detecter"
     VersionText.TextColor3 = Color3.fromRGB(100, 100, 100)
     VersionText.TextSize = 10
     VersionText.Font = Enum.Font.Gotham
     VersionText.Parent = MainFrame
     
-    -- Opening Animation
     MainFrame.Size = UDim2.new(0, 0, 0, 0)
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     
@@ -210,7 +182,6 @@ function LoaderUI:Create()
         GameNameText = GameNameText,
         LoadingBar = LoadingBar,
         StatusText = StatusText,
-        GameIcon = GameIcon
     }
 end
 
@@ -220,7 +191,6 @@ local function LoadGame()
     local PlaceId = game.PlaceId
     local GameInfo = GameDatabase[PlaceId]
     
-    -- Animate loading stages
     local function UpdateLoading(progress, status)
         TweenService:Create(UI.LoadingBar, TweenInfo.new(0.3), {
             Size = UDim2.new(progress, 0, 1, 0)
@@ -233,13 +203,11 @@ local function LoadGame()
     wait(0.3)
     
     if GameInfo then
-        -- Game detected
-        UpdateLoading(0.4, "Game detected!")
-        UI.DetectionText.Text = "Game Detected!"
+        UpdateLoading(0.4, "Game detected")
+        UI.DetectionText.Text = "Game Detected"
         UI.GameNameText.Text = GameInfo.name
         UI.GameIcon.Text = GameInfo.icon
         
-        -- Pulse animation for detection
         local pulseSize = UI.GameIcon.Size
         TweenService:Create(UI.GameIcon, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 70, 0, 70)
@@ -249,16 +217,15 @@ local function LoadGame()
             Size = pulseSize
         }):Play()
         
-        UpdateLoading(0.6, "Loading script...")
+        UpdateLoading(0.6, "Loading Script")
         wait(0.5)
         
-        UpdateLoading(0.8, "Initializing UI...")
+        UpdateLoading(0.8, "Starting UI")
         wait(0.3)
         
         UpdateLoading(1, "Launching " .. GameInfo.name .. "...")
         wait(0.5)
         
-        -- Close loader with animation
         TweenService:Create(UI.MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back), {
             Size = UDim2.new(0, 400, 0, 0),
             Position = UDim2.new(0.5, -200, 0.5, 0)
@@ -267,7 +234,6 @@ local function LoadGame()
         wait(0.3)
         UI.ScreenGui:Destroy()
         
-        -- Load game script
         if GameInfo.script == "bladeball.lua" then
             loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/bladeball.lua"))()
         elseif GameInfo.script == "rivals.lua" then
@@ -277,11 +243,9 @@ local function LoadGame()
         end
         
     else
-        -- Game not supported
-        UpdateLoading(0.5, "Game not supported!")
+        UpdateLoading(0.5, "Which Game is This Bro")
         UI.DetectionText.Text = "Game Not Supported"
         UI.GameNameText.Text = "Place ID: " .. tostring(PlaceId)
-        UI.GameIcon.Text = "❌"
         
         wait(2)
         UpdateLoading(1, "Loading universal features...")
