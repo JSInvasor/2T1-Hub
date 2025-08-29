@@ -1,365 +1,451 @@
--- 2T1 Hub - Rivals Script
--- Aimbot, ESP & Advanced Features
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
-local Players = game:GetService("Players")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
-
-local LocalPlayer = Players.LocalPlayer
-
--- Rivals Specific Variables
-local AimbotEnabled = false
-local ESPEnabled = false
-local SilentAimEnabled = false
-local FOV = 90
-local TeamCheck = true
-
--- Create Main GUI
-local function CreateRivalsGUI()
-    -- Main ScreenGui
+-- Sol üst köşeye logo/decal ekleme
+local function AddLogo(imageId)
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "RivalsHub"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = CoreGui or LocalPlayer.PlayerGui
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     
-    -- Main Frame
-    local MainFrame = Instance.new("Frame")
-    MainFrame.Size = UDim2.new(0, 550, 0, 420)
-    MainFrame.Position = UDim2.new(0.5, -275, 0.5, -210)
-    MainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 16)
-    MainFrame.BorderSizePixel = 0
-    MainFrame.Parent = ScreenGui
-    
-    local UICorner = Instance.new("UICorner")
-    UICorner.CornerRadius = UDim.new(0, 12)
-    UICorner.Parent = MainFrame
-    
-    -- Gradient Background
-    local BGGradient = Instance.new("UIGradient")
-    BGGradient.Rotation = 135
-    BGGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 10, 16)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 15, 30))
-    })
-    BGGradient.Parent = MainFrame
-    
-    -- Top Bar
-    local TopBar = Instance.new("Frame")
-    TopBar.Size = UDim2.new(1, 0, 0, 50)
-    TopBar.BackgroundColor3 = Color3.fromRGB(13, 13, 20)
-    TopBar.BorderSizePixel = 0
-    TopBar.Parent = MainFrame
-    
-    local TopCorner = Instance.new("UICorner")
-    TopCorner.CornerRadius = UDim.new(0, 12)
-    TopCorner.Parent = TopBar
-    
-    local TopCover = Instance.new("Frame")
-    TopCover.Size = UDim2.new(1, 0, 0, 15)
-    TopCover.Position = UDim2.new(0, 0, 1, -15)
-    TopCover.BackgroundColor3 = Color3.fromRGB(13, 13, 20)
-    TopCover.BorderSizePixel = 0
-    TopCover.Parent = TopBar
-    
-    -- Logo
-    local Logo = Instance.new("TextLabel")
-    Logo.Size = UDim2.new(0, 200, 1, 0)
-    Logo.Position = UDim2.new(0, 15, 0, 0)
-    Logo.BackgroundTransparency = 1
-    Logo.Text = "🔫 RIVALS"
-    Logo.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Logo.TextSize = 22
-    Logo.Font = Enum.Font.GothamBold
-    Logo.TextXAlignment = Enum.TextXAlignment.Left
-    Logo.Parent = TopBar
-    
-    -- Gradient on logo
-    local LogoGradient = Instance.new("UIGradient")
-    LogoGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 100, 100)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 50, 50))
-    })
-    LogoGradient.Parent = Logo
-    
-    -- Tab Container
-    local TabContainer = Instance.new("Frame")
-    TabContainer.Size = UDim2.new(1, -20, 0, 35)
-    TabContainer.Position = UDim2.new(0, 10, 0, 60)
-    TabContainer.BackgroundTransparency = 1
-    TabContainer.Parent = MainFrame
-    
-    local TabLayout = Instance.new("UIListLayout")
-    TabLayout.FillDirection = Enum.FillDirection.Horizontal
-    TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    TabLayout.Padding = UDim.new(0, 5)
-    TabLayout.Parent = TabContainer
-    
-    -- Create Tabs
-    local tabs = {"Combat", "Visuals", "Movement", "Misc"}
-    local tabButtons = {}
-    local tabFrames = {}
-    
-    for i, tabName in ipairs(tabs) do
-        -- Tab Button
-        local TabBtn = Instance.new("TextButton")
-        TabBtn.Size = UDim2.new(0, 120, 1, 0)
-        TabBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 27)
-        TabBtn.Text = tabName
-        TabBtn.TextColor3 = Color3.fromRGB(150, 150, 150)
-        TabBtn.TextSize = 14
-        TabBtn.Font = Enum.Font.GothamSemibold
-        TabBtn.AutoButtonColor = false
-        TabBtn.Parent = TabContainer
-        
-        local TabBtnCorner = Instance.new("UICorner")
-        TabBtnCorner.CornerRadius = UDim.new(0, 6)
-        TabBtnCorner.Parent = TabBtn
-        
-        tabButtons[tabName] = TabBtn
-        
-        -- Tab Frame
-        local TabFrame = Instance.new("ScrollingFrame")
-        TabFrame.Size = UDim2.new(1, -20, 1, -115)
-        TabFrame.Position = UDim2.new(0, 10, 0, 105)
-        TabFrame.BackgroundTransparency = 1
-        TabFrame.BorderSizePixel = 0
-        TabFrame.ScrollBarThickness = 3
-        TabFrame.ScrollBarImageColor3 = Color3.fromRGB(255, 50, 50)
-        TabFrame.CanvasSize = UDim2.new(0, 0, 0, 500)
-        TabFrame.Visible = false
-        TabFrame.Parent = MainFrame
-        
-        local TabListLayout = Instance.new("UIListLayout")
-        TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-        TabListLayout.Padding = UDim.new(0, 8)
-        TabListLayout.Parent = TabFrame
-        
-        tabFrames[tabName] = TabFrame
-    end
-    
-    -- Select first tab
-    local function selectTab(tabName)
-        for name, btn in pairs(tabButtons) do
-            if name == tabName then
-                btn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-                btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-                tabFrames[name].Visible = true
-            else
-                btn.BackgroundColor3 = Color3.fromRGB(18, 18, 27)
-                btn.TextColor3 = Color3.fromRGB(150, 150, 150)
-                tabFrames[name].Visible = false
-            end
-        end
-    end
-    
-    -- Tab click events
-    for name, btn in pairs(tabButtons) do
-        btn.MouseButton1Click:Connect(function()
-            selectTab(name)
-        end)
-    end
-    
-    selectTab("Combat")
-    
-    -- Combat Tab Content
-    local CombatTab = tabFrames["Combat"]
-    
-    -- Aimbot Section
-    local AimbotSection = Instance.new("Frame")
-    AimbotSection.Size = UDim2.new(1, 0, 0, 150)
-    AimbotSection.BackgroundColor3 = Color3.fromRGB(15, 15, 23)
-    AimbotSection.Parent = CombatTab
-    
-    local AimbotCorner = Instance.new("UICorner")
-    AimbotCorner.CornerRadius = UDim.new(0, 8)
-    AimbotCorner.Parent = AimbotSection
-    
-    local AimbotTitle = Instance.new("TextLabel")
-    AimbotTitle.Size = UDim2.new(1, -20, 0, 30)
-    AimbotTitle.Position = UDim2.new(0, 10, 0, 5)
-    AimbotTitle.BackgroundTransparency = 1
-    AimbotTitle.Text = "AIMBOT SETTINGS"
-    AimbotTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
-    AimbotTitle.TextSize = 14
-    AimbotTitle.Font = Enum.Font.GothamBold
-    AimbotTitle.TextXAlignment = Enum.TextXAlignment.Left
-    AimbotTitle.Parent = AimbotSection
-    
-    -- Aimbot Toggle
-    local AimbotToggle = Instance.new("TextButton")
-    AimbotToggle.Size = UDim2.new(0, 110, 0, 32)
-    AimbotToggle.Position = UDim2.new(0, 10, 0, 40)
-    AimbotToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    AimbotToggle.Text = "Enable Aimbot"
-    AimbotToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-    AimbotToggle.TextSize = 12
-    AimbotToggle.Font = Enum.Font.Gotham
-    AimbotToggle.AutoButtonColor = false
-    AimbotToggle.Parent = AimbotSection
-    
-    local AimbotToggleCorner = Instance.new("UICorner")
-    AimbotToggleCorner.CornerRadius = UDim.new(0, 6)
-    AimbotToggleCorner.Parent = AimbotToggle
-    
-    -- Silent Aim Toggle
-    local SilentAimToggle = Instance.new("TextButton")
-    SilentAimToggle.Size = UDim2.new(0, 110, 0, 32)
-    SilentAimToggle.Position = UDim2.new(0, 130, 0, 40)
-    SilentAimToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    SilentAimToggle.Text = "Silent Aim"
-    SilentAimToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-    SilentAimToggle.TextSize = 12
-    SilentAimToggle.Font = Enum.Font.Gotham
-    SilentAimToggle.AutoButtonColor = false
-    SilentAimToggle.Parent = AimbotSection
-    
-    local SilentAimCorner = Instance.new("UICorner")
-    SilentAimCorner.CornerRadius = UDim.new(0, 6)
-    SilentAimCorner.Parent = SilentAimToggle
-    
-    -- Team Check Toggle
-    local TeamCheckToggle = Instance.new("TextButton")
-    TeamCheckToggle.Size = UDim2.new(0, 110, 0, 32)
-    TeamCheckToggle.Position = UDim2.new(0, 250, 0, 40)
-    TeamCheckToggle.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-    TeamCheckToggle.Text = "Team Check"
-    TeamCheckToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    TeamCheckToggle.TextSize = 12
-    TeamCheckToggle.Font = Enum.Font.Gotham
-    TeamCheckToggle.AutoButtonColor = false
-    TeamCheckToggle.Parent = AimbotSection
-    
-    local TeamCheckCorner = Instance.new("UICorner")
-    TeamCheckCorner.CornerRadius = UDim.new(0, 6)
-    TeamCheckCorner.Parent = TeamCheckToggle
-    
-    -- FOV Slider
-    local FOVLabel = Instance.new("TextLabel")
-    FOVLabel.Size = UDim2.new(1, -20, 0, 20)
-    FOVLabel.Position = UDim2.new(0, 10, 0, 80)
-    FOVLabel.BackgroundTransparency = 1
-    FOVLabel.Text = "FOV: 90"
-    FOVLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    FOVLabel.TextSize = 12
-    FOVLabel.Font = Enum.Font.Gotham
-    FOVLabel.TextXAlignment = Enum.TextXAlignment.Left
-    FOVLabel.Parent = AimbotSection
-    
-    -- Visuals Tab Content
-    local VisualsTab = tabFrames["Visuals"]
-    
-    -- ESP Section
-    local ESPSection = Instance.new("Frame")
-    ESPSection.Size = UDim2.new(1, 0, 0, 120)
-    ESPSection.BackgroundColor3 = Color3.fromRGB(15, 15, 23)
-    ESPSection.Parent = VisualsTab
-    
-    local ESPCorner = Instance.new("UICorner")
-    ESPCorner.CornerRadius = UDim.new(0, 8)
-    ESPCorner.Parent = ESPSection
-    
-    local ESPTitle = Instance.new("TextLabel")
-    ESPTitle.Size = UDim2.new(1, -20, 0, 30)
-    ESPTitle.Position = UDim2.new(0, 10, 0, 5)
-    ESPTitle.BackgroundTransparency = 1
-    ESPTitle.Text = "ESP SETTINGS"
-    ESPTitle.TextColor3 = Color3.fromRGB(255, 50, 50)
-    ESPTitle.TextSize = 14
-    ESPTitle.Font = Enum.Font.GothamBold
-    ESPTitle.TextXAlignment = Enum.TextXAlignment.Left
-    ESPTitle.Parent = ESPSection
-    
-    -- ESP Toggles
-    local BoxESP = Instance.new("TextButton")
-    BoxESP.Size = UDim2.new(0, 100, 0, 30)
-    BoxESP.Position = UDim2.new(0, 10, 0, 40)
-    BoxESP.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-    BoxESP.Text = "Box ESP"
-    BoxESP.TextColor3 = Color3.fromRGB(200, 200, 200)
-    BoxESP.TextSize = 12
-    BoxESP.Font = Enum.Font.Gotham
-    BoxESP.AutoButtonColor = false
-    BoxESP.Parent = ESPSection
-    
-    local BoxESPCorner = Instance.new("UICorner")
-    BoxESPCorner.CornerRadius = UDim.new(0, 6)
-    BoxESPCorner.Parent = BoxESP
-    
-    -- Toggle Functions
-    AimbotToggle.MouseButton1Click:Connect(function()
-        AimbotEnabled = not AimbotEnabled
-        if AimbotEnabled then
-            AimbotToggle.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-            AimbotToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-            print("[Rivals] Aimbot Enabled")
-        else
-            AimbotToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-            AimbotToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-            print("[Rivals] Aimbot Disabled")
-        end
-    end)
-    
-    SilentAimToggle.MouseButton1Click:Connect(function()
-        SilentAimEnabled = not SilentAimEnabled
-        if SilentAimEnabled then
-            SilentAimToggle.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
-            SilentAimToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-        else
-            SilentAimToggle.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-            SilentAimToggle.TextColor3 = Color3.fromRGB(200, 200, 200)
-        end
-    end)
-    
-    -- Dragging
-    local dragging, dragStart, startPos
-    
-    TopBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
-        end
-    end)
-    
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-    
-    -- Right Ctrl Toggle
-    local UIVisible = true
-    UserInputService.InputBegan:Connect(function(input)
-        if input.KeyCode == Enum.KeyCode.RightControl then
-            UIVisible = not UIVisible
-            MainFrame.Visible = UIVisible
-        end
-    end)
-    
-    -- Opening Animation
-    MainFrame.Size = UDim2.new(0, 0, 0, 0)
-    MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    
-    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {
-        Size = UDim2.new(0, 550, 0, 420),
-        Position = UDim2.new(0.5, -275, 0.5, -210)
-    }):Play()
+    local ImageLabel = Instance.new("ImageLabel")
+    ImageLabel.Parent = ScreenGui
+    ImageLabel.BackgroundTransparency = 1
+    ImageLabel.Position = UDim2.new(0, 10, 0, 10)
+    ImageLabel.Size = UDim2.new(0, 100, 0, 100)
+    ImageLabel.Image = "rbxassetid://" .. imageId
+    ImageLabel.ScaleType = Enum.ScaleType.Fit
 end
 
--- Initialize
-CreateRivalsGUI()
-print("[2T1 Hub] Rivals script loaded successfully!")
+-- Logo ekle
+AddLogo("1234567890") -- BURAYA LOGO ID GİR
+
+local X = Material.Load({
+    Title = " 2t1 Hub | Rivals",
+    Style = 2,
+    SizeX = 500,
+    SizeY = 350,
+    Theme = "Dark",
+    ColorOverrides = {
+        MainFrame = Color3.fromRGB(40,40,70)
+    }
+})
+
+-- Ana Sekme
+local MainTab = X.New({
+    Title = "Main"
+})
+
+-- Visual Sekme
+local VisualTab = X.New({
+    Title = "Visual"
+})
+
+-- Settings Sekme
+local SettingsTab = X.New({
+    Title = "Settings"
+})
+
+-- MAIN TAB - SILENT AIM
+local SilentAimToggle = MainTab.Toggle({
+    Text = "Silent Aim",
+    Callback = function(Value)
+        print("Silent Aim:", Value)
+        -- Silent aim kodunu sen ekleyeceksin
+    end,
+    Enabled = false
+})
+
+local SilentAimFOV = MainTab.Slider({
+    Text = "Silent Aim FOV",
+    Callback = function(Value)
+        print("FOV:", Value)
+    end,
+    Min = 10,
+    Max = 500,
+    Def = 100
+})
+
+local SilentAimHitbox = MainTab.Dropdown({
+    Text = "Target Hitbox",
+    Callback = function(Value)
+        print("Hitbox:", Value)
+    end,
+    Options = {
+        "Head",
+        "Torso",
+        "Random"
+    }
+})
+
+local SilentAimDistance = MainTab.Slider({
+    Text = "Max Distance",
+    Callback = function(Value)
+        print("Max Distance:", Value)
+    end,
+    Min = 50,
+    Max = 1000,
+    Def = 500
+})
+
+local TeamCheck = MainTab.Toggle({
+    Text = "Team Check",
+    Callback = function(Value)
+        print("Team Check:", Value)
+    end,
+    Enabled = true
+})
+
+-- VISUAL TAB - ESP
+
+-- ESP Değişkenleri
+local ESPEnabled = false
+local BoxesEnabled = false
+local TracersEnabled = false
+local ESPConnections = {}
+local ESPObjects = {}
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
+local ESPMainColor = Color3.fromRGB(255, 0, 0)
+
+-- ESP Fonksiyonları
+local function CreateESP(player)
+    if player == LocalPlayer then return end
+    if ESPObjects[player] then return end
+    
+    local espHolder = {}
+    
+    -- ESP GUI Container
+    local espGui = Instance.new("BillboardGui")
+    espGui.Name = "ESP"
+    espGui.AlwaysOnTop = true
+    espGui.Size = UDim2.new(4, 0, 5.5, 0)
+    espGui.StudsOffset = Vector3.new(0, 0, 0)
+    
+    -- Box Frame
+    local boxFrame = Instance.new("Frame")
+    boxFrame.Parent = espGui
+    boxFrame.BackgroundTransparency = 1
+    boxFrame.Size = UDim2.new(1, 0, 1, 0)
+    boxFrame.Position = UDim2.new(0, 0, 0, 0)
+    
+    -- Box Kenarları
+    local leftLine = Instance.new("Frame")
+    leftLine.Parent = boxFrame
+    leftLine.BackgroundColor3 = ESPMainColor
+    leftLine.BorderSizePixel = 0
+    leftLine.Size = UDim2.new(0, 2, 1, 0)
+    leftLine.Position = UDim2.new(0, 0, 0, 0)
+    
+    local rightLine = Instance.new("Frame")
+    rightLine.Parent = boxFrame
+    rightLine.BackgroundColor3 = ESPMainColor
+    rightLine.BorderSizePixel = 0
+    rightLine.Size = UDim2.new(0, 2, 1, 0)
+    rightLine.Position = UDim2.new(1, -2, 0, 0)
+    
+    local topLine = Instance.new("Frame")
+    topLine.Parent = boxFrame
+    topLine.BackgroundColor3 = ESPMainColor
+    topLine.BorderSizePixel = 0
+    topLine.Size = UDim2.new(1, 0, 0, 2)
+    topLine.Position = UDim2.new(0, 0, 0, 0)
+    
+    local bottomLine = Instance.new("Frame")
+    bottomLine.Parent = boxFrame
+    bottomLine.BackgroundColor3 = ESPMainColor
+    bottomLine.BorderSizePixel = 0
+    bottomLine.Size = UDim2.new(1, 0, 0, 2)
+    bottomLine.Position = UDim2.new(0, 0, 1, -2)
+    
+    -- İsim etiketi
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Parent = espGui
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Size = UDim2.new(1, 0, 0, 20)
+    nameLabel.Position = UDim2.new(0, 0, -0.2, 0)
+    nameLabel.Font = Enum.Font.SourceSansBold
+    nameLabel.TextColor3 = ESPMainColor
+    nameLabel.TextScaled = true
+    nameLabel.TextStrokeTransparency = 0
+    nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    
+    -- Mesafe etiketi
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Parent = espGui
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Size = UDim2.new(1, 0, 0, 20)
+    distanceLabel.Position = UDim2.new(0, 0, 1, 0)
+    distanceLabel.Font = Enum.Font.SourceSans
+    distanceLabel.TextColor3 = ESPMainColor
+    distanceLabel.TextScaled = true
+    distanceLabel.TextStrokeTransparency = 0
+    distanceLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+    
+    -- Highlight (Chams)
+    local highlight = Instance.new("Highlight")
+    highlight.FillColor = ESPMainColor
+    highlight.OutlineColor = Color3.new(1, 1, 1)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    
+    -- Tracer Line
+    local tracerGui = Instance.new("ScreenGui")
+    tracerGui.Parent = game:GetService("CoreGui")
+    tracerGui.Name = "Tracer"
+    
+    local tracer = Instance.new("Frame")
+    tracer.Parent = tracerGui
+    tracer.BackgroundColor3 = ESPMainColor
+    tracer.BorderSizePixel = 0
+    tracer.AnchorPoint = Vector2.new(0.5, 0.5)
+    tracer.Size = UDim2.new(0, 1, 0, 1)
+    
+    espHolder.Billboard = espGui
+    espHolder.BoxFrame = boxFrame
+    espHolder.BoxLines = {leftLine, rightLine, topLine, bottomLine}
+    espHolder.NameLabel = nameLabel
+    espHolder.DistanceLabel = distanceLabel
+    espHolder.Highlight = highlight
+    espHolder.TracerGui = tracerGui
+    espHolder.Tracer = tracer
+    
+    ESPObjects[player] = espHolder
+    
+    -- ESP'yi güncelle
+    local function UpdateESP()
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
+            local humanoid = player.Character.Humanoid
+            local rootPart = player.Character.HumanoidRootPart
+            
+            if humanoid.Health > 0 then
+                -- Billboard'u karaktere ekle
+                if espGui.Parent ~= rootPart then
+                    espGui.Parent = rootPart
+                end
+                
+                -- Highlight'ı karaktere ekle
+                if highlight.Parent ~= player.Character then
+                    highlight.Parent = player.Character
+                end
+                
+                -- Box görünürlüğü
+                boxFrame.Visible = BoxesEnabled
+                
+                -- İsim ve health güncelle
+                nameLabel.Text = player.Name .. " [" .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "]"
+                
+                -- Mesafe hesapla
+                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                    local distance = (LocalPlayer.Character.HumanoidRootPart.Position - rootPart.Position).Magnitude
+                    distanceLabel.Text = "[" .. math.floor(distance) .. " studs]"
+                end
+                
+                -- Tracer güncelle
+                if TracersEnabled and rootPart then
+                    local vector, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
+                    if onScreen then
+                        local startPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+                        local endPos = Vector2.new(vector.X, vector.Y)
+                        local distance = (endPos - startPos).Magnitude
+                        
+                        tracer.Size = UDim2.new(0, 2, 0, distance)
+                        tracer.Position = UDim2.new(0, startPos.X, 0, startPos.Y)
+                        tracer.Rotation = math.deg(math.atan2(endPos.Y - startPos.Y, endPos.X - startPos.X)) + 90
+                        tracer.Visible = true
+                        tracer.BackgroundColor3 = ESPMainColor
+                    else
+                        tracer.Visible = false
+                    end
+                else
+                    tracer.Visible = false
+                end
+                
+                -- Renkleri güncelle
+                local teamColor = ESPMainColor
+                if player.Team and LocalPlayer.Team then
+                    if player.Team == LocalPlayer.Team then
+                        teamColor = Color3.new(0, 1, 0) -- Yeşil takım arkadaşı
+                    else
+                        teamColor = Color3.new(1, 0, 0) -- Kırmızı düşman
+                    end
+                else
+                    teamColor = Color3.new(1, 1, 0) -- Sarı belirsiz
+                end
+                
+                -- Renkleri uygula
+                highlight.FillColor = teamColor
+                nameLabel.TextColor3 = teamColor
+                distanceLabel.TextColor3 = teamColor
+                for _, line in pairs(espHolder.BoxLines) do
+                    line.BackgroundColor3 = teamColor
+                end
+                tracer.BackgroundColor3 = teamColor
+            else
+                espGui.Parent = nil
+                highlight.Parent = nil
+                tracer.Visible = false
+            end
+        else
+            espGui.Parent = nil
+            highlight.Parent = nil
+            tracer.Visible = false
+        end
+    end
+    
+    espHolder.UpdateConnection = RunService.RenderStepped:Connect(UpdateESP)
+end
+
+local function RemoveESP(player)
+    if ESPObjects[player] then
+        if ESPObjects[player].Billboard then
+            ESPObjects[player].Billboard:Destroy()
+        end
+        if ESPObjects[player].Highlight then
+            ESPObjects[player].Highlight:Destroy()
+        end
+        if ESPObjects[player].TracerGui then
+            ESPObjects[player].TracerGui:Destroy()
+        end
+        if ESPObjects[player].UpdateConnection then
+            ESPObjects[player].UpdateConnection:Disconnect()
+        end
+        ESPObjects[player] = nil
+    end
+end
+
+local function EnableESP()
+    ESPEnabled = true
+    
+    -- Mevcut oyuncular için ESP oluştur
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            CreateESP(player)
+        end
+    end
+    
+    -- Yeni oyuncular için
+    ESPConnections.PlayerAdded = Players.PlayerAdded:Connect(function(player)
+        if ESPEnabled then
+            CreateESP(player)
+        end
+    end)
+    
+    -- Oyuncu çıkınca
+    ESPConnections.PlayerRemoving = Players.PlayerRemoving:Connect(function(player)
+        RemoveESP(player)
+    end)
+end
+
+local function DisableESP()
+    ESPEnabled = false
+    
+    -- Tüm ESP'leri kaldır
+    for player, _ in pairs(ESPObjects) do
+        RemoveESP(player)
+    end
+    
+    -- Bağlantıları kes
+    for _, connection in pairs(ESPConnections) do
+        connection:Disconnect()
+    end
+    ESPConnections = {}
+end
+
+-- ESP Toggle
+local ESPToggle = VisualTab.Toggle({
+    Text = "ESP",
+    Callback = function(Value)
+        if Value then
+            EnableESP()
+            print("ESP Enabled")
+        else
+            DisableESP()
+            print("ESP Disabled")
+        end
+    end,
+    Enabled = false
+})
+
+local ESPBoxes = VisualTab.Toggle({
+    Text = "ESP Boxes",
+    Callback = function(Value)
+        BoxesEnabled = Value
+        print("ESP Boxes:", Value)
+    end,
+    Enabled = false
+})
+
+local ESPTracers = VisualTab.Toggle({
+    Text = "ESP Tracers",
+    Callback = function(Value)
+        TracersEnabled = Value
+        print("ESP Tracers:", Value)
+    end,
+    Enabled = false
+})
+
+local ESPDistance = VisualTab.Slider({
+    Text = "ESP Max Distance",
+    Callback = function(Value)
+        print("ESP Distance:", Value)
+    end,
+    Min = 100,
+    Max = 5000,
+    Def = 1500
+})
+
+local ESPColor = VisualTab.ColorPicker({
+    Text = "ESP Color",
+    Default = Color3.fromRGB(255, 0, 0),
+    Callback = function(Value)
+        ESPMainColor = Value
+        -- Mevcut ESP'lerin rengini güncelle
+        for player, espData in pairs(ESPObjects) do
+            if espData.BoxLines then
+                for _, line in pairs(espData.BoxLines) do
+                    line.BackgroundColor3 = ESPMainColor
+                end
+            end
+            if espData.NameLabel then
+                espData.NameLabel.TextColor3 = ESPMainColor
+            end
+            if espData.DistanceLabel then
+                espData.DistanceLabel.TextColor3 = ESPMainColor
+            end
+            if espData.Tracer then
+                espData.Tracer.BackgroundColor3 = ESPMainColor
+            end
+            if espData.Highlight then
+                espData.Highlight.FillColor = ESPMainColor
+            end
+        end
+        print("ESP Color Changed")
+    end
+})
+
+-- SETTINGS TAB
+local ConfigName = SettingsTab.TextField({
+    Text = "Config Name",
+    Callback = function(Value)
+        print("Config:", Value)
+    end
+})
+
+local SaveButton = SettingsTab.Button({
+    Text = "Save Config",
+    Callback = function()
+        X.Banner({
+            Text = "Config Saved!"
+        })
+    end
+})
+
+local LoadButton = SettingsTab.Button({
+    Text = "Load Config", 
+    Callback = function()
+        X.Banner({
+            Text = "Config Loaded!"
+        })
+    end
+})
