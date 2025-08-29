@@ -269,11 +269,11 @@ local function LoadGame()
         
         -- Load game script
         if GameInfo.script == "bladeball.lua" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/2T1Hub/Scripts/main/bladeball.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/bladeball.lua"))()
         elseif GameInfo.script == "rivals.lua" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/2T1Hub/Scripts/main/rivals.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/rivals.lua"))()
         elseif GameInfo.script == "hypershot.lua" then
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/2T1Hub/Scripts/main/hypershot.lua"))()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/hypershot.lua"))()
         end
         
     else
