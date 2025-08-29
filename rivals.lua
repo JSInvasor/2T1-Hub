@@ -1,6 +1,5 @@
 local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
 
--- Sol üst köşeye logo/decal ekleme
 local function AddLogo(imageId)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
@@ -15,8 +14,8 @@ local function AddLogo(imageId)
     ImageLabel.ScaleType = Enum.ScaleType.Fit
 end
 
--- Logo ekle
-AddLogo("1234567890") -- BURAYA LOGO ID GİR
+
+AddLogo("1234567890")
 
 local X = Material.Load({
     Title = " 2t1 Hub | Rivals",
@@ -29,27 +28,23 @@ local X = Material.Load({
     }
 })
 
--- Ana Sekme
 local MainTab = X.New({
     Title = "Main"
 })
 
--- Visual Sekme
 local VisualTab = X.New({
     Title = "Visual"
 })
 
--- Settings Sekme
 local SettingsTab = X.New({
     Title = "Settings"
 })
 
--- MAIN TAB - SILENT AIM
 local SilentAimToggle = MainTab.Toggle({
     Text = "Silent Aim",
     Callback = function(Value)
         print("Silent Aim:", Value)
-        -- Silent aim kodunu sen ekleyeceksin
+        -- Silent aim kodu buraya
     end,
     Enabled = false
 })
@@ -94,9 +89,7 @@ local TeamCheck = MainTab.Toggle({
     Enabled = true
 })
 
--- VISUAL TAB - ESP
 
--- ESP Değişkenleri
 local ESPEnabled = false
 local BoxesEnabled = false
 local TracersEnabled = false
@@ -108,28 +101,24 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local ESPMainColor = Color3.fromRGB(255, 0, 0)
 
--- ESP Fonksiyonları
 local function CreateESP(player)
     if player == LocalPlayer then return end
     if ESPObjects[player] then return end
     
     local espHolder = {}
     
-    -- ESP GUI Container
     local espGui = Instance.new("BillboardGui")
     espGui.Name = "ESP"
     espGui.AlwaysOnTop = true
     espGui.Size = UDim2.new(4, 0, 5.5, 0)
     espGui.StudsOffset = Vector3.new(0, 0, 0)
     
-    -- Box Frame
     local boxFrame = Instance.new("Frame")
     boxFrame.Parent = espGui
     boxFrame.BackgroundTransparency = 1
     boxFrame.Size = UDim2.new(1, 0, 1, 0)
     boxFrame.Position = UDim2.new(0, 0, 0, 0)
     
-    -- Box Kenarları
     local leftLine = Instance.new("Frame")
     leftLine.Parent = boxFrame
     leftLine.BackgroundColor3 = ESPMainColor
@@ -158,7 +147,6 @@ local function CreateESP(player)
     bottomLine.Size = UDim2.new(1, 0, 0, 2)
     bottomLine.Position = UDim2.new(0, 0, 1, -2)
     
-    -- İsim etiketi
     local nameLabel = Instance.new("TextLabel")
     nameLabel.Parent = espGui
     nameLabel.BackgroundTransparency = 1
@@ -170,7 +158,6 @@ local function CreateESP(player)
     nameLabel.TextStrokeTransparency = 0
     nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
     
-    -- Mesafe etiketi
     local distanceLabel = Instance.new("TextLabel")
     distanceLabel.Parent = espGui
     distanceLabel.BackgroundTransparency = 1
@@ -182,14 +169,12 @@ local function CreateESP(player)
     distanceLabel.TextStrokeTransparency = 0
     distanceLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
     
-    -- Highlight (Chams)
     local highlight = Instance.new("Highlight")
     highlight.FillColor = ESPMainColor
     highlight.OutlineColor = Color3.new(1, 1, 1)
     highlight.FillTransparency = 0.5
     highlight.OutlineTransparency = 0
     
-    -- Tracer Line
     local tracerGui = Instance.new("ScreenGui")
     tracerGui.Parent = game:GetService("CoreGui")
     tracerGui.Name = "Tracer"
@@ -212,7 +197,6 @@ local function CreateESP(player)
     
     ESPObjects[player] = espHolder
     
-    -- ESP'yi güncelle
     local function UpdateESP()
         if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
             local humanoid = player.Character.Humanoid
@@ -224,15 +208,12 @@ local function CreateESP(player)
                     espGui.Parent = rootPart
                 end
                 
-                -- Highlight'ı karaktere ekle
                 if highlight.Parent ~= player.Character then
                     highlight.Parent = player.Character
                 end
                 
-                -- Box görünürlüğü
                 boxFrame.Visible = BoxesEnabled
                 
-                -- İsim ve health güncelle
                 nameLabel.Text = player.Name .. " [" .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "]"
                 
                 -- Mesafe hesapla
@@ -241,7 +222,6 @@ local function CreateESP(player)
                     distanceLabel.Text = "[" .. math.floor(distance) .. " studs]"
                 end
                 
-                -- Tracer güncelle
                 if TracersEnabled and rootPart then
                     local vector, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
                     if onScreen then
@@ -261,19 +241,17 @@ local function CreateESP(player)
                     tracer.Visible = false
                 end
                 
-                -- Renkleri güncelle
                 local teamColor = ESPMainColor
                 if player.Team and LocalPlayer.Team then
                     if player.Team == LocalPlayer.Team then
-                        teamColor = Color3.new(0, 1, 0) -- Yeşil takım arkadaşı
+                        teamColor = Color3.new(0, 1, 0)
                     else
-                        teamColor = Color3.new(1, 0, 0) -- Kırmızı düşman
+                        teamColor = Color3.new(1, 0, 0)
                     end
                 else
-                    teamColor = Color3.new(1, 1, 0) -- Sarı belirsiz
+                    teamColor = Color3.new(1, 1, 0)
                 end
                 
-                -- Renkleri uygula
                 highlight.FillColor = teamColor
                 nameLabel.TextColor3 = teamColor
                 distanceLabel.TextColor3 = teamColor
@@ -317,21 +295,18 @@ end
 local function EnableESP()
     ESPEnabled = true
     
-    -- Mevcut oyuncular için ESP oluştur
     for _, player in pairs(Players:GetPlayers()) do
         if player ~= LocalPlayer then
             CreateESP(player)
         end
     end
     
-    -- Yeni oyuncular için
     ESPConnections.PlayerAdded = Players.PlayerAdded:Connect(function(player)
         if ESPEnabled then
             CreateESP(player)
         end
     end)
     
-    -- Oyuncu çıkınca
     ESPConnections.PlayerRemoving = Players.PlayerRemoving:Connect(function(player)
         RemoveESP(player)
     end)
@@ -340,19 +315,16 @@ end
 local function DisableESP()
     ESPEnabled = false
     
-    -- Tüm ESP'leri kaldır
     for player, _ in pairs(ESPObjects) do
         RemoveESP(player)
     end
     
-    -- Bağlantıları kes
     for _, connection in pairs(ESPConnections) do
         connection:Disconnect()
     end
     ESPConnections = {}
 end
 
--- ESP Toggle
 local ESPToggle = VisualTab.Toggle({
     Text = "ESP",
     Callback = function(Value)
@@ -424,7 +396,6 @@ local ESPColor = VisualTab.ColorPicker({
     end
 })
 
--- SETTINGS TAB
 local ConfigName = SettingsTab.TextField({
     Text = "Config Name",
     Callback = function(Value)
