@@ -75,6 +75,11 @@ local function keepUnanchoredAndSeated()
 end
 
 local function startFlying()
+	-- Toggle kontrolü - sadece toggle açıksa fly başlat
+	if not getgenv().FlyBypassEnabled then 
+		return 
+	end
+	
 	if flying then return end
 	flying = true
 
@@ -123,9 +128,15 @@ local function stopFlying()
 	seat = nil
 end
 
-
+-- F tuşu kontrolü - Toggle kontrolü eklendi
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
+	
+	-- Toggle kontrolü - sadece toggle açıksa F tuşu çalışsın
+	if not getgenv().FlyBypassEnabled then 
+		return 
+	end
+	
 	if input.KeyCode == Enum.KeyCode.F then
 		if flying then
 			stopFlying()
