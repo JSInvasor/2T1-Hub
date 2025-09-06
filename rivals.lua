@@ -1,422 +1,632 @@
-local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/best2.lua"))()
 
-local function AddLogo(imageId)
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    local ImageLabel = Instance.new("ImageLabel")
-    ImageLabel.Parent = ScreenGui
-    ImageLabel.BackgroundTransparency = 1
-    ImageLabel.Position = UDim2.new(0, 10, 0, 10)
-    ImageLabel.Size = UDim2.new(0, 100, 0, 100)
-    ImageLabel.Image = "rbxassetid://" .. imageId
-    ImageLabel.ScaleType = Enum.ScaleType.Fit
-end
-
-
-AddLogo("1234567890")
-
-local X = Material.Load({
-    Title = " 2t1 Hub | Rivals",
-    Style = 2,
-    SizeX = 500,
-    SizeY = 350,
+local Window = Library:Window({
+    Title = "2t1 Project [Version > 1.2]",
+    Desc = "https://discord.gg/wB4FNzmUPx",
+    Icon = 88445176259961,
     Theme = "Dark",
-    ColorOverrides = {
-        MainFrame = Color3.fromRGB(40,40,70)
+    Config = {
+        Keybind = Enum.KeyCode.LeftControl,
+        Size = UDim2.new(0, 500, 0, 400)
+    },
+    CloseUIButton = {
+        Enabled = true,
+        Text = "2t1"
     }
 })
 
-local MainTab = X.New({
-    Title = "Main"
-})
-
-local VisualTab = X.New({
-    Title = "Visual"
-})
-
-local SettingsTab = X.New({
-    Title = "Settings"
-})
-
-local SilentAimToggle = MainTab.Toggle({
-    Text = "Silent Aim",
-    Callback = function(Value)
-        print("Silent Aim:", Value)
-        -- Silent aim kodu buraya
-    end,
-    Enabled = false
-})
-
-local SilentAimFOV = MainTab.Slider({
-    Text = "Silent Aim FOV",
-    Callback = function(Value)
-        print("FOV:", Value)
-    end,
-    Min = 10,
-    Max = 500,
-    Def = 100
-})
-
-local SilentAimHitbox = MainTab.Dropdown({
-    Text = "Target Hitbox",
-    Callback = function(Value)
-        print("Hitbox:", Value)
-    end,
-    Options = {
-        "Head",
-        "Torso",
-        "Random"
-    }
-})
-
-local SilentAimDistance = MainTab.Slider({
-    Text = "Max Distance",
-    Callback = function(Value)
-        print("Max Distance:", Value)
-    end,
-    Min = 50,
-    Max = 1000,
-    Def = 500
-})
-
-local TeamCheck = MainTab.Toggle({
-    Text = "Team Check",
-    Callback = function(Value)
-        print("Team Check:", Value)
-    end,
-    Enabled = true
-})
-
-
-local ESPEnabled = false
-local BoxesEnabled = false
-local TracersEnabled = false
-local ESPConnections = {}
-local ESPObjects = {}
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-local ESPMainColor = Color3.fromRGB(255, 0, 0)
-
-local function CreateESP(player)
-    if player == LocalPlayer then return end
-    if ESPObjects[player] then return end
+local Tab = Window:Tab({Title = "Main", Icon = "star"}) do
+    Tab:Section({Title = "Combat Features"})
     
-    local espHolder = {}
-    
-    local espGui = Instance.new("BillboardGui")
-    espGui.Name = "ESP"
-    espGui.AlwaysOnTop = true
-    espGui.Size = UDim2.new(4, 0, 5.5, 0)
-    espGui.StudsOffset = Vector3.new(0, 0, 0)
-    
-    local boxFrame = Instance.new("Frame")
-    boxFrame.Parent = espGui
-    boxFrame.BackgroundTransparency = 1
-    boxFrame.Size = UDim2.new(1, 0, 1, 0)
-    boxFrame.Position = UDim2.new(0, 0, 0, 0)
-    
-    local leftLine = Instance.new("Frame")
-    leftLine.Parent = boxFrame
-    leftLine.BackgroundColor3 = ESPMainColor
-    leftLine.BorderSizePixel = 0
-    leftLine.Size = UDim2.new(0, 2, 1, 0)
-    leftLine.Position = UDim2.new(0, 0, 0, 0)
-    
-    local rightLine = Instance.new("Frame")
-    rightLine.Parent = boxFrame
-    rightLine.BackgroundColor3 = ESPMainColor
-    rightLine.BorderSizePixel = 0
-    rightLine.Size = UDim2.new(0, 2, 1, 0)
-    rightLine.Position = UDim2.new(1, -2, 0, 0)
-    
-    local topLine = Instance.new("Frame")
-    topLine.Parent = boxFrame
-    topLine.BackgroundColor3 = ESPMainColor
-    topLine.BorderSizePixel = 0
-    topLine.Size = UDim2.new(1, 0, 0, 2)
-    topLine.Position = UDim2.new(0, 0, 0, 0)
-    
-    local bottomLine = Instance.new("Frame")
-    bottomLine.Parent = boxFrame
-    bottomLine.BackgroundColor3 = ESPMainColor
-    bottomLine.BorderSizePixel = 0
-    bottomLine.Size = UDim2.new(1, 0, 0, 2)
-    bottomLine.Position = UDim2.new(0, 0, 1, -2)
-    
-    local nameLabel = Instance.new("TextLabel")
-    nameLabel.Parent = espGui
-    nameLabel.BackgroundTransparency = 1
-    nameLabel.Size = UDim2.new(1, 0, 0, 20)
-    nameLabel.Position = UDim2.new(0, 0, -0.2, 0)
-    nameLabel.Font = Enum.Font.SourceSansBold
-    nameLabel.TextColor3 = ESPMainColor
-    nameLabel.TextScaled = true
-    nameLabel.TextStrokeTransparency = 0
-    nameLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    
-    local distanceLabel = Instance.new("TextLabel")
-    distanceLabel.Parent = espGui
-    distanceLabel.BackgroundTransparency = 1
-    distanceLabel.Size = UDim2.new(1, 0, 0, 20)
-    distanceLabel.Position = UDim2.new(0, 0, 1, 0)
-    distanceLabel.Font = Enum.Font.SourceSans
-    distanceLabel.TextColor3 = ESPMainColor
-    distanceLabel.TextScaled = true
-    distanceLabel.TextStrokeTransparency = 0
-    distanceLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-    
-    local highlight = Instance.new("Highlight")
-    highlight.FillColor = ESPMainColor
-    highlight.OutlineColor = Color3.new(1, 1, 1)
-    highlight.FillTransparency = 0.5
-    highlight.OutlineTransparency = 0
-    
-    local tracerGui = Instance.new("ScreenGui")
-    tracerGui.Parent = game:GetService("CoreGui")
-    tracerGui.Name = "Tracer"
-    
-    local tracer = Instance.new("Frame")
-    tracer.Parent = tracerGui
-    tracer.BackgroundColor3 = ESPMainColor
-    tracer.BorderSizePixel = 0
-    tracer.AnchorPoint = Vector2.new(0.5, 0.5)
-    tracer.Size = UDim2.new(0, 1, 0, 1)
-    
-    espHolder.Billboard = espGui
-    espHolder.BoxFrame = boxFrame
-    espHolder.BoxLines = {leftLine, rightLine, topLine, bottomLine}
-    espHolder.NameLabel = nameLabel
-    espHolder.DistanceLabel = distanceLabel
-    espHolder.Highlight = highlight
-    espHolder.TracerGui = tracerGui
-    espHolder.Tracer = tracer
-    
-    ESPObjects[player] = espHolder
-    
-    local function UpdateESP()
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character:FindFirstChild("Humanoid") then
-            local humanoid = player.Character.Humanoid
-            local rootPart = player.Character.HumanoidRootPart
-            
-            if humanoid.Health > 0 then
-                -- Billboard'u karaktere ekle
-                if espGui.Parent ~= rootPart then
-                    espGui.Parent = rootPart
-                end
+    Tab:Toggle({
+        Title = "Silent Aim",
+        Desc = "Enable/Disable Silent Aim feature",
+        Value = false,
+        Callback = function(enabled)
+            if enabled then
+                print("Silent Aim: ON")
+                -- Silent aim scriptini buraya ekle
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/silentaim.lua"))()
                 
-                if highlight.Parent ~= player.Character then
-                    highlight.Parent = player.Character
-                end
-                
-                boxFrame.Visible = BoxesEnabled
-                
-                nameLabel.Text = player.Name .. " [" .. math.floor(humanoid.Health) .. "/" .. math.floor(humanoid.MaxHealth) .. "]"
-                
-                -- Mesafe hesapla
-                if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                    local distance = (LocalPlayer.Character.HumanoidRootPart.Position - rootPart.Position).Magnitude
-                    distanceLabel.Text = "[" .. math.floor(distance) .. " studs]"
-                end
-                
-                if TracersEnabled and rootPart then
-                    local vector, onScreen = Camera:WorldToViewportPoint(rootPart.Position)
-                    if onScreen then
-                        local startPos = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-                        local endPos = Vector2.new(vector.X, vector.Y)
-                        local distance = (endPos - startPos).Magnitude
-                        
-                        tracer.Size = UDim2.new(0, 2, 0, distance)
-                        tracer.Position = UDim2.new(0, startPos.X, 0, startPos.Y)
-                        tracer.Rotation = math.deg(math.atan2(endPos.Y - startPos.Y, endPos.X - startPos.X)) + 90
-                        tracer.Visible = true
-                        tracer.BackgroundColor3 = ESPMainColor
-                    else
-                        tracer.Visible = false
-                    end
-                else
-                    tracer.Visible = false
-                end
-                
-                local teamColor = ESPMainColor
-                if player.Team and LocalPlayer.Team then
-                    if player.Team == LocalPlayer.Team then
-                        teamColor = Color3.new(0, 1, 0)
-                    else
-                        teamColor = Color3.new(1, 0, 0)
-                    end
-                else
-                    teamColor = Color3.new(1, 1, 0)
-                end
-                
-                highlight.FillColor = teamColor
-                nameLabel.TextColor3 = teamColor
-                distanceLabel.TextColor3 = teamColor
-                for _, line in pairs(espHolder.BoxLines) do
-                    line.BackgroundColor3 = teamColor
-                end
-                tracer.BackgroundColor3 = teamColor
+                Window:Notify({
+                    Title = "Silent Aim",
+                    Desc = "Silent Aim activated successfully!",
+                    Time = 3
+                })
             else
-                espGui.Parent = nil
-                highlight.Parent = nil
-                tracer.Visible = false
+                print("Silent Aim: OFF")
+                Window:Notify({
+                    Title = "Silent Aim", 
+                    Desc = "Silent Aim deactivated. May require rejoin to fully disable.",
+                    Time = 3
+                })
             end
-        else
-            espGui.Parent = nil
-            highlight.Parent = nil
-            tracer.Visible = false
         end
-    end
+    })
     
-    espHolder.UpdateConnection = RunService.RenderStepped:Connect(UpdateESP)
+    Tab:Section({Title = "Aim Settings"})
+    
+    Tab:Toggle({
+        Title = "Show FOV",
+        Desc = "Show FOV circle for Silent Aim",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().ShowFOV = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "FOV Circle",
+                    Desc = "FOV circle enabled!",
+                    Time = 2
+                })
+            else
+                Window:Notify({
+                    Title = "FOV Circle",
+                    Desc = "FOV circle disabled!",
+                    Time = 2
+                })
+            end
+        end
+    })
+    
+    Tab:Slider({
+        Title = "FOV Size",
+        Min = 10,
+        Max = 500,
+        Rounding = 0,
+        Value = 100,
+        Callback = function(value)
+            getgenv().FOVSize = value
+        end
+    })
 end
 
-local function RemoveESP(player)
-    if ESPObjects[player] then
-        if ESPObjects[player].Billboard then
-            ESPObjects[player].Billboard:Destroy()
+Window:Line()
+
+local Visuals = Window:Tab({Title = "Visuals", Icon = "eye"}) do
+    Visuals:Section({Title = "ESP Features"})
+    
+    Visuals:Toggle({
+        Title = "Player ESP",
+        Desc = "Show all players through walls",
+        Value = false,
+        Callback = function(enabled)
+            if enabled then
+                print("Player ESP: ON")
+                -- ESP scriptini buraya ekle
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/esp.lua"))()
+                
+                Window:Notify({
+                    Title = "Player ESP",
+                    Desc = "ESP activated! You can see all players.",
+                    Time = 3
+                })
+            else
+                print("Player ESP: OFF")
+                Window:Notify({
+                    Title = "Player ESP",
+                    Desc = "ESP deactivated. May require rejoin to fully disable.",
+                    Time = 3
+                })
+            end
         end
-        if ESPObjects[player].Highlight then
-            ESPObjects[player].Highlight:Destroy()
+    })
+    
+    Visuals:Toggle({
+        Title = "Box ESP",
+        Desc = "Draw boxes around players",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().BoxESPEnabled = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Box ESP",
+                    Desc = "Box ESP enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Box ESP",
+                    Desc = "Box ESP disabled!",
+                    Time = 3
+                })
+            end
         end
-        if ESPObjects[player].TracerGui then
-            ESPObjects[player].TracerGui:Destroy()
+    })
+    
+    Visuals:Toggle({
+        Title = "Name ESP",
+        Desc = "Show player names",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().NameESPEnabled = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Name ESP",
+                    Desc = "Name ESP enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Name ESP",
+                    Desc = "Name ESP disabled!",
+                    Time = 3
+                })
+            end
         end
-        if ESPObjects[player].UpdateConnection then
-            ESPObjects[player].UpdateConnection:Disconnect()
+    })
+    
+    Visuals:Toggle({
+        Title = "Distance ESP",
+        Desc = "Show distance to players",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().DistanceESPEnabled = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Distance ESP",
+                    Desc = "Distance ESP enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Distance ESP",
+                    Desc = "Distance ESP disabled!",
+                    Time = 3
+                })
+            end
         end
-        ESPObjects[player] = nil
-    end
+    })
+    
+    Visuals:Toggle({
+        Title = "Health Bar",
+        Desc = "Show player health bars",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().HealthESPEnabled = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Health ESP",
+                    Desc = "Health bars enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Health ESP",
+                    Desc = "Health bars disabled!",
+                    Time = 3
+                })
+            end
+        end
+    })
+    
+    Visuals:Section({Title = "ESP Settings"})
+    
+    Visuals:Slider({
+        Title = "ESP Max Distance",
+        Min = 100,
+        Max = 10000,
+        Rounding = 0,
+        Value = 5000,
+        Callback = function(value)
+            getgenv().ESPMaxDistance = value
+        end
+    })
+    
+    Visuals:Slider({
+        Title = "ESP Text Size",
+        Min = 10,
+        Max = 30,
+        Rounding = 0,
+        Value = 14,
+        Callback = function(value)
+            getgenv().ESPTextSize = value
+        end
+    })
+    
+    Visuals:Toggle({
+        Title = "Team Check",
+        Desc = "Don't show ESP on teammates",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().ESPTeamCheck = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Team Check",
+                    Desc = "Team check enabled!",
+                    Time = 2
+                })
+            else
+                Window:Notify({
+                    Title = "Team Check",
+                    Desc = "Team check disabled!",
+                    Time = 2
+                })
+            end
+        end
+    })
+    
+    Visuals:Toggle({
+        Title = "Visible Check",
+        Desc = "Different color when player is visible",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().ESPVisibleCheck = enabled
+            if enabled then
+                Window:Notify({
+                    Title = "Visible Check",
+                    Desc = "Visible check enabled!",
+                    Time = 2
+                })
+            else
+                Window:Notify({
+                    Title = "Visible Check",
+                    Desc = "Visible check disabled!",
+                    Time = 2
+                })
+            end
+        end
+    })
 end
 
-local function EnableESP()
-    ESPEnabled = true
+Window:Line()
+
+local Extra = Window:Tab({Title = "Extra", Icon = "tag"}) do
+    Extra:Section({Title = "Movement"})
     
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            CreateESP(player)
+    Extra:Button({
+        Title = "Run Fly Bypass",
+        Desc = "Click to load Fly Bypass (Press F to toggle fly)",
+        Callback = function()
+            print("Loading Fly Bypass...")
+            -- Fly Bypass scriptini çalıştır
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/flybypass.lua"))()
+            
+            Window:Notify({
+                Title = "Fly Bypass",
+                Desc = "Fly Bypass loaded! Press F to start/stop flying.",
+                Time = 4
+            })
         end
-    end
+    })
     
-    ESPConnections.PlayerAdded = Players.PlayerAdded:Connect(function(player)
-        if ESPEnabled then
-            CreateESP(player)
+    Extra:Section({Title = "Teleports"})
+    
+    Extra:Button({
+        Title = "Teleport to Random Player",
+        Desc = "Teleport to a random player in the game",
+        Callback = function()
+            local players = game.Players:GetPlayers()
+            local localPlayer = game.Players.LocalPlayer
+            local randomPlayer = players[math.random(1, #players)]
+            
+            if randomPlayer ~= localPlayer and randomPlayer.Character then
+                localPlayer.Character.HumanoidRootPart.CFrame = randomPlayer.Character.HumanoidRootPart.CFrame
+                Window:Notify({
+                    Title = "Teleported",
+                    Desc = "Teleported to " .. randomPlayer.Name,
+                    Time = 3
+                })
+            end
         end
-    end)
-    
-    ESPConnections.PlayerRemoving = Players.PlayerRemoving:Connect(function(player)
-        RemoveESP(player)
-    end)
+    })
 end
 
-local function DisableESP()
-    ESPEnabled = false
-    
-    for player, _ in pairs(ESPObjects) do
-        RemoveESP(player)
-    end
-    
-    for _, connection in pairs(ESPConnections) do
-        connection:Disconnect()
-    end
-    ESPConnections = {}
-end
+Window:Line()
 
-local ESPToggle = VisualTab.Toggle({
-    Text = "ESP",
-    Callback = function(Value)
-        if Value then
-            EnableESP()
-            print("ESP Enabled")
-        else
-            DisableESP()
-            print("ESP Disabled")
+local Misc = Window:Tab({Title = "Misc", Icon = "settings"}) do
+    Misc:Section({Title = "Player Mods"})
+    
+    Misc:Toggle({
+        Title = "Infinite Jump",
+        Desc = "Jump multiple times in the air",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().InfiniteJumpEnabled = enabled
+            if enabled then
+                game:GetService("UserInputService").JumpRequest:Connect(function()
+                    if getgenv().InfiniteJumpEnabled then
+                        local player = game.Players.LocalPlayer
+                        if player.Character and player.Character:FindFirstChild("Humanoid") then
+                            player.Character.Humanoid:ChangeState("Jumping")
+                        end
+                    end
+                end)
+                
+                Window:Notify({
+                    Title = "Infinite Jump",
+                    Desc = "Infinite Jump enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Infinite Jump",
+                    Desc = "Infinite Jump disabled!",
+                    Time = 3
+                })
+            end
         end
-    end,
-    Enabled = false
-})
-
-local ESPBoxes = VisualTab.Toggle({
-    Text = "ESP Boxes",
-    Callback = function(Value)
-        BoxesEnabled = Value
-        print("ESP Boxes:", Value)
-    end,
-    Enabled = false
-})
-
-local ESPTracers = VisualTab.Toggle({
-    Text = "ESP Tracers",
-    Callback = function(Value)
-        TracersEnabled = Value
-        print("ESP Tracers:", Value)
-    end,
-    Enabled = false
-})
-
-local ESPDistance = VisualTab.Slider({
-    Text = "ESP Max Distance",
-    Callback = function(Value)
-        print("ESP Distance:", Value)
-    end,
-    Min = 100,
-    Max = 5000,
-    Def = 1500
-})
-
-local ESPColor = VisualTab.ColorPicker({
-    Text = "ESP Color",
-    Default = Color3.fromRGB(255, 0, 0),
-    Callback = function(Value)
-        ESPMainColor = Value
-        -- Mevcut ESP'lerin rengini güncelle
-        for player, espData in pairs(ESPObjects) do
-            if espData.BoxLines then
-                for _, line in pairs(espData.BoxLines) do
-                    line.BackgroundColor3 = ESPMainColor
+    })
+    
+    Misc:Toggle({
+        Title = "Noclip",
+        Desc = "Walk through walls",
+        Value = false,
+        Callback = function(enabled)
+            getgenv().Noclip = enabled
+            if enabled then
+                game:GetService("RunService").Stepped:Connect(function()
+                    if getgenv().Noclip then
+                        for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                            if part:IsA("BasePart") then
+                                part.CanCollide = false
+                            end
+                        end
+                    end
+                end)
+                
+                Window:Notify({
+                    Title = "Noclip",
+                    Desc = "Noclip enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Noclip",
+                    Desc = "Noclip disabled!",
+                    Time = 3
+                })
+            end
+        end
+    })
+    
+    Misc:Section({Title = "Server"})
+    
+    Misc:Button({
+        Title = "Server Info",
+        Desc = "Show current server information",
+        Callback = function()
+            local players = #game.Players:GetPlayers()
+            local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+            local fps = math.floor(1/game:GetService("RunService").RenderStepped:Wait())
+            
+            Window:Notify({
+                Title = "Server Info",
+                Desc = "Players: " .. players .. "/50 | Ping: " .. ping .. " | FPS: " .. fps,
+                Time = 5
+            })
+        end
+    })
+    
+    Misc:Button({
+        Title = "Rejoin Game",
+        Desc = "Quickly rejoin the current server",
+        Callback = function()
+            game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, game.Players.LocalPlayer)
+        end
+    })
+    
+    -- Server Hop
+    Misc:Button({
+        Title = "Server Hop",
+        Desc = "Join a different server",
+        Callback = function()
+            local PlaceID = game.PlaceId
+            local AllIDs = {}
+            local foundAnything = ""
+            local actualHour = os.date("!*t").hour
+            local Deleted = false
+            
+            function TPReturner()
+                local Site;
+                if foundAnything == "" then
+                    Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100'))
+                else
+                    Site = game.HttpService:JSONDecode(game:HttpGet('https://games.roblox.com/v1/games/' .. PlaceID .. '/servers/Public?sortOrder=Asc&limit=100&cursor=' .. foundAnything))
+                end
+                local ID = ""
+                if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+                    foundAnything = Site.nextPageCursor
+                end
+                local num = 0;
+                for i,v in pairs(Site.data) do
+                    local Possible = true
+                    ID = tostring(v.id)
+                    if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                        for _,Existing in pairs(AllIDs) do
+                            if num ~= 0 then
+                                if ID == tostring(Existing) then
+                                    Possible = false
+                                end
+                            else
+                                if tonumber(actualHour) ~= tonumber(Existing) then
+                                    local delFile = pcall(function()
+                                        AllIDs = {}
+                                        table.insert(AllIDs, actualHour)
+                                    end)
+                                end
+                            end
+                            num = num + 1
+                        end
+                        if Possible == true then
+                            table.insert(AllIDs, ID)
+                            wait()
+                            pcall(function()
+                                game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                            end)
+                            wait(4)
+                        end
+                    end
                 end
             end
-            if espData.NameLabel then
-                espData.NameLabel.TextColor3 = ESPMainColor
+            
+            function Teleport()
+                while wait() do
+                    pcall(function()
+                        TPReturner()
+                        if foundAnything ~= "" then
+                            TPReturner()
+                        end
+                    end)
+                end
             end
-            if espData.DistanceLabel then
-                espData.DistanceLabel.TextColor3 = ESPMainColor
-            end
-            if espData.Tracer then
-                espData.Tracer.BackgroundColor3 = ESPMainColor
-            end
-            if espData.Highlight then
-                espData.Highlight.FillColor = ESPMainColor
+            
+            Teleport()
+        end
+    })
+    
+    Misc:Section({Title = "Other"})
+    
+    -- Discord Server
+    Misc:Button({
+        Title = "Discord Server",
+        Desc = "Copy Discord invite to clipboard",
+        Callback = function()
+            setclipboard("https://discord.gg/wB4FNzmUPx")
+            Window:Notify({
+                Title = "Discord",
+                Desc = "Discord link copied to clipboard!",
+                Time = 3
+            })
+        end
+    })
+    
+    -- Anti AFK
+    Misc:Toggle({
+        Title = "Anti AFK",
+        Desc = "Prevents you from being kicked for idling",
+        Value = false,
+        Callback = function(enabled)
+            if enabled then
+                for i,v in pairs(getconnections(game.Players.LocalPlayer.Idled)) do
+                    v:Disable()
+                end
+                Window:Notify({
+                    Title = "Anti AFK",
+                    Desc = "Anti AFK enabled!",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Anti AFK",
+                    Desc = "Anti AFK disabled! Rejoin to restore.",
+                    Time = 3
+                })
             end
         end
-        print("ESP Color Changed")
-    end
-})
+    })
+end
 
-local ConfigName = SettingsTab.TextField({
-    Text = "Config Name",
-    Callback = function(Value)
-        print("Config:", Value)
-    end
-})
+Window:Line()
 
-local SaveButton = SettingsTab.Button({
-    Text = "Save Config",
-    Callback = function()
-        X.Banner({
-            Text = "Config Saved!"
-        })
-    end
-})
+local Settings = Window:Tab({Title = "Settings", Icon = "wrench"}) do
+    Settings:Section({Title = "Performance"})
+    
+    Settings:Toggle({
+        Title = "FPS Boost",
+        Desc = "Disable textures and effects for better FPS",
+        Value = false,
+        Callback = function(enabled)
+            if enabled then
+                settings().Rendering.QualityLevel = 1
+                game:GetService("Lighting").GlobalShadows = false
+                game:GetService("Lighting").FogEnd = 9e9
+                
+                for _, v in pairs(game:GetDescendants()) do
+                    if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+                        v.Material = "Plastic"
+                        v.Reflectance = 0
+                    elseif v:IsA("Decal") or v:IsA("Texture") then
+                        v.Transparency = 1
+                    elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+                        v.Lifetime = NumberRange.new(0)
+                    elseif v:IsA("Explosion") then
+                        v.BlastPressure = 1
+                        v.BlastRadius = 1
+                    end
+                end
+                
+                Window:Notify({
+                    Title = "FPS Boost",
+                    Desc = "FPS Boost enabled! Graphics reduced.",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "FPS Boost",
+                    Desc = "FPS Boost disabled. Rejoin to restore graphics.",
+                    Time = 3
+                })
+            end
+        end
+    })
+    
+    Settings:Toggle({
+        Title = "Anti-Lag",
+        Desc = "Remove unnecessary parts to reduce lag",
+        Value = false,
+        Callback = function(enabled)
+            if enabled then
+                local function antiLag()
+                    for _, v in pairs(game:GetService("Workspace"):GetDescendants()) do
+                        if v:IsA("Seat") or v:IsA("VehicleSeat") then
+                            -- Seats hariç (fly bypass için gerekli)
+                        elseif v:IsA("MeshPart") and v.TextureID ~= "" then
+                            v.TextureID = ""
+                        elseif v:IsA("SpecialMesh") and v.TextureId ~= "" then
+                            v.TextureId = ""
+                        end
+                    end
+                end
+                antiLag()
+                
+                Window:Notify({
+                    Title = "Anti-Lag",
+                    Desc = "Anti-Lag enabled! Textures removed.",
+                    Time = 3
+                })
+            else
+                Window:Notify({
+                    Title = "Anti-Lag",
+                    Desc = "Anti-Lag disabled. Rejoin to restore.",
+                    Time = 3
+                })
+            end
+        end
+    })
+    
+    Settings:Section({Title = "Player"})
+    
+    Settings:Slider({
+        Title = "Walk Speed",
+        Min = 16,
+        Max = 200,
+        Rounding = 0,
+        Value = 16,
+        Callback = function(value)
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.WalkSpeed = value
+            end
+        end
+    })
+    
+    Settings:Slider({
+        Title = "Jump Power",
+        Min = 50,
+        Max = 300,
+        Rounding = 0,
+        Value = 50,
+        Callback = function(value)
+            local player = game.Players.LocalPlayer
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.JumpPower = value
+            end
+        end
+    })
+end
 
-local LoadButton = SettingsTab.Button({
-    Text = "Load Config", 
-    Callback = function()
-        X.Banner({
-            Text = "Config Loaded!"
-        })
-    end
+Window:Notify({
+    Title = "2t1 Hub",
+    Desc = "Loaded successfully! Credits: @Invasor , @Drawat",
+    Time = 10
 })
