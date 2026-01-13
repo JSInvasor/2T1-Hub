@@ -15,19 +15,16 @@ local Window = Library:Window({
     }
 })
 
--- MAIN TAB (Silent Aim Loadstring)
 local Tab = Window:Tab({Title = "Main", Icon = "star"}) do
     Tab:Section({Title = "Combat"})
     
     Tab:Toggle({
         Title = "Silent Aim",
-        Desc = "Loads Silent Aim",
+        Desc = "Silent Aim BETA!",
         Value = false,
         Callback = function(enabled)
             if enabled then
-                -- BURAYA KENDİ GITHUB RAW LİNKİNİ YAPIŞTIR
-                -- Örnek: loadstring(game:HttpGet("https://raw.github.../script.lua"))()
-                loadstring(game:HttpGet("BURAYA_SILENT_AIM_RAW_LINKINI_YAPISTIR"))()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/JSInvasor/2T1-Hub/refs/heads/main/silent.lua"))()
                 
                 Window:Notify({
                     Title = "Silent Aim",
@@ -35,8 +32,6 @@ local Tab = Window:Tab({Title = "Main", Icon = "star"}) do
                     Time = 3
                 })
             else
-                -- Scriptin içinde kapanma mantığı (toggle off) varsa buraya ekleyebilirsin
-                -- Genelde loadstring bir kere çalışır, kapatmak için scriptin içine logic kurman gerekir.
                 Window:Notify({
                     Title = "Silent Aim",
                     Desc = "Disabled",
@@ -49,7 +44,6 @@ end
 
 Window:Line()
 
--- EXTRA TAB (Aynen Korundu)
 local Extra = Window:Tab({Title = "Extra", Icon = "tag"}) do
     Extra:Section({Title = "Movement"})
     
@@ -251,6 +245,6 @@ end
 
 Window:Notify({
     Title = "2t1 Hub",
-    Desc = "Loaded successfully!",
+    Desc = "Loaded successfully! @Invasor @Drawat",
     Time = 4
 })
