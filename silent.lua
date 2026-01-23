@@ -1,35 +1,31 @@
---[[
-2t1 Hub HyperShot Silent Aim @Drawat
-]]
 local LPlayer = game.Players.LocalPlayer
-local EnemyPos = Vector3.new(100, 100, 100)
+local EnemyPos = Vector3.new(1000, 1000, 1000)
+local MobsFolder = Workspace.Mobs
+
+local NamecallHook;NamecallHook = hookmetamethod(game, "_namecall", function(...)
+    if getnamecallmethod() == "Raycast" then
+        local , Origin, _, Params = ...
+        return NamecallHook(Workspace, Origin, EnemyPos - Origin, Params)
+    end
+    return NamecallHook(...)
+end)
 
 game:GetService("RunService").Heartbeat:Connect(function()
-    local MinDistance = math.huge
+    local MinDistance = 99999
     if LPlayer.Character and LPlayer.Character:FindFirstChild("Head") then
-        local LH = LPlayer.Character.Head
-        for _, Child in ipairs(workspace:GetChildren()) do
-            if Child.Name ~= LPlayer.Name and Child:FindFirstChild("Head") and Child:FindFirstChild("EnemyHighlight") then
-                local EH = Child.Head
-                local Distance = (EH.Position - LH.Position).Magnitude
+        local LHead = LPlayer.Character.Head
+        local Alives = MobsFolder:GetChildren()
+        local Objects = Workspace:GetChildren()
+        table.move(Objects, 35, #Objects, #Alives + 1, Alives)
+        for i = 1, #Alives do
+            if Alives[i]:FindFirstChild("EnemyHighlight") then
+                local EHead = Alives[i].Head
+                local Distance = (EHead.Position - LHead.Position).Magnitude
                 if Distance < MinDistance then
                     MinDistance = Distance
-                    EnemyPos = EH.Position
+                    EnemyPos = EHead.Position
                 end
             end
         end
     end
 end)
-
-local oldmetamethod;oldmetamethod = hookmetamethod(game, "namecall", newcclosure(function(...)
-    if getnamecallmethod() == "Raycast" and oldmetamethod(...) and not isfunctionhooked(oldmetamethod) then
-        local oldfunc;oldfunc = hookfunction(oldmetamethod, newcclosure(function(v1, v2, ...)
-            if getnamecallmethod() == "Raycast" then
-                return oldfunc(v1, v2, EnemyPos - v2, select(2, ...))
-            end
-            return oldfunc(v1, v2, ...)
-        end))
-        hookmetamethod(game, "namecall", oldmetamethod)
-    end
-    return oldmetamethod(...)
-end))
